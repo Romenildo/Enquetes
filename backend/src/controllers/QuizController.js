@@ -3,6 +3,7 @@ const Quiz = require('../models/quiz')
 
 const getToken = require("../helpers/get-token")
 const getUserByToken = require("../helpers/get-user-by-token")
+const ObjectId = require("mongoose").Types.ObjectId;
 
 module.exports  = class QuizController {
 
@@ -37,7 +38,7 @@ module.exports  = class QuizController {
         try {
             const newQuiz = await quiz.save()
             return res.status(201).json({
-                message: "Quiz criadfo com sucesso!",
+                message: "Quiz criado com sucesso!",
                 quiz: newQuiz
             })
         } catch (err) {
@@ -114,6 +115,7 @@ module.exports  = class QuizController {
         return res.status(200).json({ message: "Questionario deletado com sucesso" });
       }
 
+
       static async addQuestion(req, res){
 
         const id = req.params.id;
@@ -123,7 +125,7 @@ module.exports  = class QuizController {
             return res.status(422).json({message: "O campo descrição é obrigatorio!"})
         }
 
-        //check if pet exists
+        //check if quiz exite
         const quiz = await Quiz.findOne({ _id: id });
         if (!quiz) {
         return res.status(404).json({ message: "Quiz não encontrado!" });
@@ -133,8 +135,9 @@ module.exports  = class QuizController {
         const token = getToken(req);
         const user = await getUserByToken(token);
 
-        const question = new question({
+        const question = new Object({
             description,
+            date: new Date(),
             userOwner: {
               _id: user._id,
               name: user.name
@@ -145,6 +148,54 @@ module.exports  = class QuizController {
 
         await Quiz.findByIdAndUpdate(id, quiz);
 
-        return res.status(200).json({ message: "Comentarioa dicionado!" });
+        return res.status(200).json({ message: "Comentario adicionado!" , quiz: quiz});
+      }
+
+      static async addAnswerToQuestion(req, res){
+
+        const id = req.params.id;
+        const {description, idQuestion} = req.body
+
+        if(!description){
+            return res.status(422).json({message: "O campo descrição é obrigatorio!"})
+        }
+        if(!idQuestion){
+          return res.status(422).json({message: "O campo idQuestion é obrigatorio!"})
+      }
+
+        //check if quiz existe
+        const quiz = await Quiz.findOne({ _id: id });
+        if (!quiz) {
+        return res.status(404).json({ message: "Quiz não encontrado!" });
+        }
+
+        //check if logged in user registered the pet
+        const token = getToken(req);
+        const user = await getUserByToken(token);
+
+        const answer = new Object({
+            description,
+            date: new Date(),
+            userOwner: {
+              _id: user._id,
+              name: user.name
+            }
+        })
+
+        
+        if(quiz.questions.length > 0){
+          quiz.questions.map((question)=>{
+            console.log(question + " " + idQuestion)
+            console.log(question._id.equals(idQuestion))
+            if(question._id.equals(idQuestion)){
+              question.answers.push(answer)
+            }
+          })
+        }
+
+
+        await Quiz.findByIdAndUpdate(id, quiz);
+
+        return res.status(200).json({ message: "Resposta adicionado!" , quiz: quiz});
       }
 }

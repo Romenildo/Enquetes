@@ -19,12 +19,20 @@ const QuizSchema = new mongoose.Schema(
             description:{
                 type: String
             },
-            user: Object,//quem amndou a question
+            date: {
+                type: Date,
+                required: true,
+            },
+            userOwner: Object,//quem amndou a question
             answers : [{
                 description:{
                     type: String
                 },
-                user: Object,//quem amndou a question
+                date: {
+                    type: Date,
+                    required: true,
+                },
+                userOwner: Object,//quem amndou a question
             }]
         }]
     }, 
