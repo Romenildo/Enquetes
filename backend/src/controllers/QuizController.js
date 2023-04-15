@@ -1,6 +1,9 @@
 
 const Quiz = require('../models/quiz')
 
+const getToken = require("../helpers/get-token")
+const getUserByToken = require("../helpers/get-user-by-token")
+
 module.exports  = class QuizController {
 
     static async create (req, res){

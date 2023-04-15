@@ -16,6 +16,10 @@ const verifyToken = (req, res, next)=> {
 
     try {
         const verified = jwt.verify(token, 'secret')
+
+        if(!verified){
+            return res.status(401).json({ message: "Token não cadastrado no sistema!"})
+        }
         req.user = verified
         next()
     } catch (err) {

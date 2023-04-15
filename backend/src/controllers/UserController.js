@@ -1,6 +1,12 @@
 
-const createUserToken = require('../helpers/create-user-token')
 const User = require('../models/User')
+
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+
+const getToken = require("../helpers/get-token")
+const createUserToken = require("../helpers/create-user-token")
+const getUserByToken = require("../helpers/get-user-by-token")
 
 module.exports  = class UserController {
 
@@ -39,7 +45,7 @@ module.exports  = class UserController {
 
         try {
             const newUser = await  user.save()
-
+            console.log(newUser)
             return await createUserToken(newUser, req, res)
         } catch (error) {
             return res.status(500).json({ message: error})
@@ -59,8 +65,8 @@ module.exports  = class UserController {
 
         //check if user exists
         const user = await User.findOne({cpf: cpf})
-        if(user){
-            return res.status(422).json({ message: "Já existe uma conta com esse cpf!"})
+        if(!user){
+            return res.status(422).json({ message: "Usuario não encontrado!"})
         }
 
         //check se password match                (senha recebida com senha do usuario cadastrado no abnco)
@@ -107,7 +113,6 @@ module.exports  = class UserController {
         //check if user exist
         const token = getToken(req)
         const user = await getUserByToken(token)
-        
          //validations
          if(!name){
             return res.status(422).json({ message: "O Campo nome é obrigatorio!"})
