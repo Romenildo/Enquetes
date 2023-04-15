@@ -1,11 +1,13 @@
+require('dotenv').config()
 const express = require("express")
 const cors = require("cors")
 
 
 //routes
 const UserRoutes = require("./routes/UserRoutes")
+const QuizRoutes = require("./routes/QuizRoutes")
 
-require('dotenv').config()
+
 const port = process.env.PORT
 
 const app = express()
@@ -16,6 +18,7 @@ app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
 
 //routes
 app.use('/users', UserRoutes)
+app.use('/quiz', QuizRoutes)
 
 
 app.listen(port, ()=>{
